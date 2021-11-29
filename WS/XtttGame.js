@@ -74,7 +74,7 @@ function onTurn(data) {
 function onNewGame(data) {
 	//util.log("onGameLoadedS with qgid: "+data.qgid);
 
-	io.to(this.player.opp.sockid).emit("new_Game");
+	io.to(this.player.opp.sockid).emit("new_game");
 
 	util.log("new game  --  usr:"+this.player.mode + " - :"+this.player.name);
 	// updAdmin("Q answer - game - qgid:"+data.qgid + "  --  usr:"+this.player.mode + " - uid:"+this.player.uid + "  --  qnum:"+data.qnum + "  --  ans:"+data.ansnum);
