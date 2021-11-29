@@ -71,6 +71,16 @@ function onTurn(data) {
 
 // ----	--------------------------------------------	--------------------------------------------	
 // ----	--------------------------------------------	--------------------------------------------	
+function onNewGame(data) {
+	//util.log("onGameLoadedS with qgid: "+data.qgid);
+
+	io.to(this.player.opp.sockid).emit("new_Game");
+
+	util.log("new game  --  usr:"+this.player.mode + " - :"+this.player.name);
+	// updAdmin("Q answer - game - qgid:"+data.qgid + "  --  usr:"+this.player.mode + " - uid:"+this.player.uid + "  --  qnum:"+data.qnum + "  --  ans:"+data.ansnum);
+};
+// ----	--------------------------------------------	--------------------------------------------	
+// ----	--------------------------------------------	--------------------------------------------	
 
 // Socket client has disconnected
 function onClientDisconnect() {
@@ -105,6 +115,8 @@ set_game_sock_handlers = function (socket) {
 	socket.on("new player", onNewPlayer);
 
 	socket.on("ply_turn", onTurn);
+
+	socket.on("new_game", onNewGame);
 
 	socket.on("disconnect", onClientDisconnect);
 
