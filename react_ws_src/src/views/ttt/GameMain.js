@@ -25,29 +25,29 @@ export default class SetName extends Component {
 			['c3', 'c5', 'c7']
 		]
 
-
-		if (this.props.game_type != 'live')
+		if (this.props.game_type != 'live') 
 			this.state = {
 				cell_vals: {},
 				next_turn_ply: true,
 				game_play: true,
-				game_stat: 'Start game'
+				game_stat: 'Start game',
+				game_over: false
 			}
 		else {
-			this.sock_start()
-
 			this.state = {
 				cell_vals: {},
 				next_turn_ply: true,
 				game_play: false,
-				game_stat: 'Connecting'
+				game_stat: 'Connecting',
+				game_over: false
 			}
 		}
-	}
+	}	
 
 //	------------------------	------------------------	------------------------
 
 	componentDidMount () {
+		if (this.props.game_type === 'live') this.sock_start()
     	TweenMax.from('#game_stat', 1, {display: 'none', opacity: 0, scaleX:0, scaleY:0, ease: Power4.easeIn})
     	TweenMax.from('#game_board', 1, {display: 'none', opacity: 0, x:-200, y:-200, scaleX:0, scaleY:0, ease: Power4.easeIn})
 	}
@@ -80,7 +80,7 @@ export default class SetName extends Component {
 
 		this.socket.on('opp_turn', this.turn_opp_live.bind(this));
 
-
+		this.socket.on('new_game', this.new_game_live.bind(this));
 
 	}
 
@@ -140,7 +140,7 @@ export default class SetName extends Component {
 					</tbody>
 					</table>
 				</div>
-
+				<button type='submit' onClick={this.start_new_game.bind(this)} className='button mr-5' disabled={!this.state.game_over}><span>New Game <span className='fa fa-caret-right'></span></span></button>
 				<button type='submit' onClick={this.end_game.bind(this)} className='button'><span>End Game <span className='fa fa-caret-right'></span></span></button>
 
 			</div>
@@ -245,6 +245,36 @@ export default class SetName extends Component {
 
 //	------------------------	------------------------	------------------------
 
+	start_new_game () {
+		this.setState({
+			cell_vals: {},
+			next_turn_ply: true,
+			game_play: true,
+			game_stat: 'New game'
+		})
+		this.socket.emit('new_game');
+		this.reset_game_board()
+	}
+
+//	------------------------	------------------------	------------------------
+
+	new_game_live (data) {
+		this.setState({
+			cell_vals: {},
+			next_turn_ply: false,
+			game_play: true,
+			game_stat: 'New game'
+		})
+		this.reset_game_board()
+	}
+
+	// This is pretty much where I ran out of time :-)
+	reset_game_board () {
+		// reset the styling from thr table/ board
+	}
+
+//	------------------------	------------------------	------------------------
+
 	turn_opp_live (data) {
 
 		let { cell_vals } = this.state
@@ -306,19 +336,21 @@ export default class SetName extends Component {
 
 			this.setState({
 				game_stat: (cell_vals[set[0]]=='x'?'You':'Opponent')+' win',
-				game_play: false
+				game_play: false,
+				game_over: true
 			})
 
-			this.socket && this.socket.disconnect();
+			// this.socket && this.socket.disconnect();
 
 		} else if (fin) {
 		
 			this.setState({
 				game_stat: 'Draw',
-				game_play: false
+				game_play: false,
+				game_over: true
 			})
 
-			this.socket && this.socket.disconnect();
+			// this.socket && this.socket.disconnect();
 
 		} else {
 			this.props.game_type!='live' && this.state.next_turn_ply && setTimeout(this.turn_comp.bind(this), rand_to_fro(500, 1000));
